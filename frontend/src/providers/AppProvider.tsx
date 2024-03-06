@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 import CssBaseline from '@mui/material/CssBaseline';
 
@@ -12,7 +13,9 @@ export const AppProvider = ({ children }: AppProviderProps) => {
   return (
     <Suspense fallback={ <Loading /> } >
       <CssBaseline />
-      {children}
+      <Router>
+        {children}
+      </Router>
     </Suspense>
   );
 };
