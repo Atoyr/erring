@@ -1,7 +1,15 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 
-export const Board = () => {
+import { Object } from '../types';
+
+interface boardProps {
+
+
+}
+
+export const Board = (props: boardProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [objects, setObjects] = useState<Object[]>([]);
   useEffect(() => {
     const canvas = canvasRef.current!;
     const context = canvas!.getContext('2d');
