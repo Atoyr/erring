@@ -1,2 +1,2 @@
-export * from './Object'
+export * from './Element'
 export * from './Point'
