@@ -1,9 +1,9 @@
 import { Point } from './Point';
 
-export type Element = {
+export interface Element {
   id: string;
-  type: 'sticky' | 'arrow';
   start: Point;
   end : Point;
   text: string;
+  Draw: (context: CanvasRenderingContext2D) => void;
 }

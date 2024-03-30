@@ -3,8 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useCanvas } from '../hooks/useCanvas';
 
-import { Element } from '../types/Element';
-import { Point } from '../types/Point';
+import { Element, Sticky, Coordinate2D } from '../types';
 
 // interface boardProps {
 //   mode: string;
@@ -14,38 +13,41 @@ import { Point } from '../types/Point';
 export const Board = () => {
   const [currentElementId, setCurrentElementId] = useState<string | null>(null)
   const [elements, setElements] = useState<Element[]>([]);
+  const [offset, setOffset] = useState<Coordinate2D>({ x: 0, y: 0 });
 
    // テキスト入力フィールドの表示位置
-  const [inputPosition, setInputPosition] = useState<Point>({ x: 0, y: 0 });
+  const [inputPosition, setInputPosition] = useState<Coordinate2D>({ x: 0, y: 0 });
   const [inputValue, setInputValue] = useState<string>('');
 
   const draw = useCallback((canvas: HTMLCanvasElement) => {
     // 描画のロジック
     const context = canvas.getContext('2d')!;
-    context.clearRect(0, 0, window.innerWidth , window.innerHeight );
 
     elements.forEach((element) => {
-      if (element.type === 'sticky') {
-        // 付箋の描画
-        context.fillStyle = 'yellow';
-        context.fillRect(element.start.x - 50, element.start.y - 50, 100, 100);
-        context.fillStyle = 'black';
-        context.fillText(element.text, element.start.x - 45, element.start.y);
-      } else if (element.type === 'arrow') {
-        // 矢印の描画
-        context.beginPath();
-        context.moveTo(element.start.x, element.start.y);
-        context.lineTo(element.end.x, element.end.y);
-        context.stroke();
-      }
+      element.Draw(context);
+      // if (element.type === 'sticky') {
+      //   // 付箋の描画
+      //   context.fillStyle = 'yellow';
+      //   context.fillRect(element.start.x - 50, element.start.y - 50, 100, 100);
+      //   context.fillStyle = 'black';
+      //   context.fillText(element.text, element.start.x - 45, element.start.y);
+      // } else if (element.type === 'arrow') {
+      //   // 矢印の描画
+      //   context.beginPath();
+      //   context.moveTo(element.start.x, element.start.y);
+      //   context.lineTo(element.end.x, element.end.y);
+      //   context.stroke();
+      // }
     });
   }, [elements]);
 
-  const canvasRef = useCanvas(draw);
+  const canvasRef = useCanvas(draw, offset);
 
   const handleMouseDown: React.MouseEventHandler<HTMLCanvasElement> = (event: React.MouseEvent) => {
     console.log('mouse down', event.clientX, event.clientY);
-    const element = getElement(event.clientX, event.clientY);
+    const clientX = event.clientX - offset.x;
+    const clientY = event.clientY + offset.y;
+    const element = getElement(clientX, clientY);
     if (element) {
       setCurrentElementId(element.id);
       setInputPosition({ x: element.start.x, y: element.start.y });
@@ -53,11 +55,11 @@ export const Board = () => {
       return;
     }
     const rect = canvasRef.current!.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
     // ダミーテキストを付箋に追加
     const id = uuidv4();
-    const newElement = { id: id, type: 'sticky', start: { x: event.clientX!, y: event.clientY! }, end: { x, y }, text: '付箋' } as Element;
+    const newElement = new Sticky(id, { x, y }, 100, '付箋');
     setElements((elements) => [...elements, newElement]);
   };
 
@@ -75,14 +77,12 @@ export const Board = () => {
 
   const handleWheel: React.WheelEventHandler<HTMLCanvasElement> = (event: React.WheelEvent) => {
     console.log('wheel', event.deltaX, event.deltaY);
+    setOffset((offset) => ({ x: offset.x + event.deltaX, y: offset.y + event.deltaY }));
   };
 
   const getElement = (x: number, y: number) => {
     return elements.find(element => {
-      if (element.type === 'sticky') {
         return x > element.start.x - 50 && x < element.start.x + 50 && y > element.start.y - 50 && y < element.start.y + 50;
-      }
-      return false;
     });
   };
 

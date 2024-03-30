@@ -1,2 +1,3 @@
 export * from './Element'
-export * from './Point'
+export * from './Sticky'
+export * from './Coordinate2D'
