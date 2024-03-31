@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react';
-import { Coordinate2D } from '../types';
+import { Coordinate2D } from '../canvas';
 
 export const useCanvas = (draw: (canvas: HTMLCanvasElement) => void, offset: Coordinate2D ) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);

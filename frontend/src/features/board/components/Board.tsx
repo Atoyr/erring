@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { useCanvas } from '../hooks/useCanvas';
 
-import { Element, Sticky, Coordinate2D } from '../types';
+import { Coordinate2D, Element, StickyElement, EntityElement } from '../canvas';
 
 // interface boardProps {
 //   mode: string;
@@ -48,10 +48,10 @@ export const Board = () => {
     const clientX = event.clientX - offset.x;
     const clientY = event.clientY + offset.y;
     const element = getElement(clientX, clientY);
-    if (element) {
+    if (element instanceof StickyElement) {
       setCurrentElementId(element.id);
       setInputPosition({ x: element.start.x, y: element.start.y });
-      setInputValue(element.text);
+      setInputValue((element as StickyElement).sticky.text);
       return;
     }
     const rect = canvasRef.current!.getBoundingClientRect();
@@ -59,7 +59,8 @@ export const Board = () => {
     const y = clientY - rect.top;
     // ダミーテキストを付箋に追加
     const id = uuidv4();
-    const newElement = new Sticky(id, { x, y }, 100, '付箋');
+    // const newElement = new StickyElement(id, { x, y }, 100, { text: '付箋' });
+    const newElement = new EntityElement(id, { x, y }, 100, { name: 'エンティティ' });
     setElements((elements) => [...elements, newElement]);
   };
 
